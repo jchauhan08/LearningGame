@@ -1,0 +1,606 @@
+---
+layout: aesthetihawk
+active_tab: groups
+title: Groups Management
+type: issues
+permalink: /student/groups
+comments: false
+---
+
+<div class="min-h-screen bg-neutral-900 py-10">
+  <div class="max-w-6xl mx-auto px-4">
+    <!-- Page Title -->
+    <h2 class="text-2xl font-semibold text-white mb-6">Group Management</h2>
+
+    <!-- Unified Filter Bar -->
+    <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-md p-4 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="text-sm text-gray-300">
+          <span class="font-semibold text-white">Filters</span> · Narrow groups by period and class
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <!-- Period filter dropdown -->
+          <div class="relative" id="periodFilterWrapper">
+            <button id="periodFilterButton" type="button"
+              class="flex items-center gap-2 px-4 py-2 bg-neutral-700 text-gray-200 rounded-lg text-sm border border-neutral-600 hover:bg-neutral-600 transition-colors"
+              onclick="toggleDropdown('period')">
+              <span id="periodFilterLabel">All Periods</span>
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div id="periodDropdown"
+              class="hidden absolute right-0 mt-2 w-56 bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg z-20">
+              <div class="p-3 space-y-2 text-sm text-gray-200">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input id="periodAllCheckbox" type="checkbox" class="accent-indigo-500" checked
+                    onchange="onPeriodAllChange(this)" />
+                  <span>All Periods</span>
+                </label>
+                <div class="border-t border-neutral-700 my-2"></div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="accent-indigo-500 period-checkbox" value="1"
+                    onchange="onPeriodCheckboxChange(this)" />
+                  <span>Period 1</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="accent-indigo-500 period-checkbox" value="2"
+                    onchange="onPeriodCheckboxChange(this)" />
+                  <span>Period 2</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="accent-indigo-500 period-checkbox" value="3"
+                    onchange="onPeriodCheckboxChange(this)" />
+                  <span>Period 3</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="accent-indigo-500 period-checkbox" value="4"
+                    onchange="onPeriodCheckboxChange(this)" />
+                  <span>Period 4</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="accent-indigo-500 period-checkbox" value="5"
+                    onchange="onPeriodCheckboxChange(this)" />
+                  <span>Period 5</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Class filter dropdown -->
+          <div class="relative" id="classFilterWrapper">
+            <button id="classFilterButton" type="button"
+              class="flex items-center gap-2 px-4 py-2 bg-neutral-700 text-gray-200 rounded-lg text-sm border border-neutral-600 hover:bg-neutral-600 transition-colors"
+              onclick="toggleDropdown('class')">
+              <span id="classFilterLabel">All Classes</span>
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div id="classDropdown"
+              class="hidden absolute right-0 mt-2 w-56 bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg z-20">
+              <div class="p-3 space-y-2 text-sm text-gray-200">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input id="classAllCheckbox" type="checkbox" class="accent-indigo-500" checked
+                    onchange="onClassAllChange(this)" />
+                  <span>All Classes</span>
+                </label>
+                <div class="border-t border-neutral-700 my-2"></div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="accent-indigo-500 class-checkbox" value="CSSE"
+                    onchange="onClassCheckboxChange(this)" />
+                  <span>CSSE</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="accent-indigo-500 class-checkbox" value="CSP"
+                    onchange="onClassCheckboxChange(this)" />
+                  <span>CSP</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="accent-indigo-500 class-checkbox" value="CSA"
+                    onchange="onClassCheckboxChange(this)" />
+                  <span>CSA</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clear filters -->
+          <button type="button"
+            class="px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-neutral-700 rounded-lg border border-neutral-700 transition-colors"
+            onclick="clearAllFilters()">
+            Clear Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Groups Display Area -->
+    <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-md p-6">
+      <!-- Search bar -->
+      <input type="text" id="searchInput" placeholder="Search by Group Name or Member Name"
+        class="w-full mb-6 px-4 py-3 bg-neutral-700 text-white placeholder-gray-400 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+
+      <!-- Add Group Section -->
+      <div id="addGroupSection" class="mb-6 bg-neutral-700 border-2 border-dashed border-neutral-600 rounded-lg p-6">
+        <div id="addGroupCollapsed" class="cursor-pointer" onclick="toggleAddGroup()">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-white">Add New Group</h3>
+                <p class="text-sm text-gray-400">Click to create a new group</p>
+              </div>
+            </div>
+            <svg id="addGroupChevron" class="w-6 h-6 text-gray-400 transition-transform" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div id="addGroupExpanded" class="hidden mt-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2">Group Name</label>
+            <input type="text" id="newGroupName" placeholder="Enter group name"
+              class="w-full px-4 py-2 bg-neutral-600 text-white placeholder-gray-400 border border-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2">Period</label>
+            <select id="newGroupPeriod"
+              class="w-full px-4 py-2 bg-neutral-600 text-white border border-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="">Select period</option>
+              <option value="1">Period 1</option>
+              <option value="2">Period 2</option>
+              <option value="3">Period 3</option>
+              <option value="4">Period 4</option>
+              <option value="5">Period 5</option>
+            </select>
+          </div>
+
+          <!-- Class selection -->
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2">Class</label>
+            <select id="newGroupClass"
+              class="w-full px-4 py-2 bg-neutral-600 text-white border border-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="">Select class</option>
+              <option value="CSSE">CSSE</option>
+              <option value="CSP">CSP</option>
+              <option value="CSA">CSA</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-200 mb-2">Members (one per line, enter UIDs)</label>
+            <textarea id="newGroupMembers" rows="4" placeholder="Enter member names, one per line"
+              class="w-full px-4 py-2 bg-neutral-600 text-white placeholder-gray-400 border border-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          </div>
+
+          <div class="flex gap-3 justify-end">
+            <button onclick="cancelAddGroup()"
+              class="px-4 py-2 bg-neutral-600 hover:bg-neutral-500 text-white rounded-lg transition-colors">
+              Cancel
+            </button>
+            <button onclick="saveNewGroup()"
+              class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors">
+              Create Group
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Groups List -->
+      <div id="groupsContainer" class="space-y-3">
+        <!-- Groups will be injected here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="hidden text-center py-12 text-gray-400">
+        <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+          </path>
+        </svg>
+        <p class="text-lg">No groups found</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/* ================================
+   CONFIG
+================================ */
+import { pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+
+/* ================================
+   STATE
+================================ */
+let allGroups = [];
+let activePeriods = [];
+let activeClasses = [];
+
+/* ================================
+   INIT
+================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  loadGroups();
+  document.getElementById("searchInput").addEventListener("input", renderGroups);
+});
+
+window.parseUIDs = function (raw) {
+  return raw
+    .split("\n")
+    .map(u => u.trim())
+    .filter(Boolean);
+}
+
+window.validateUIDWithFlask = async function (uid) {
+  const res = await fetch(`${pythonURI}/api/user`, {
+    credentials: "include"
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch users from Flask");
+  }
+
+  const users = await res.json();
+
+  const match = users.find(u => u.uid === uid);
+
+  if (!match) {
+    throw new Error(`UID not found in Flask: ${uid}`);
+  }
+
+  return match.uid; // validated
+}
+
+
+
+window.getPersonIdFromUID = async function (uid) {
+  const res = await fetch(`${javaURI}/api/people`, {
+    ...fetchOptions,
+    credentials: "include"
+  });
+
+  if (!res.ok) {
+    console.error("Java /api/people status:", res.status);
+    throw new Error("Failed to fetch people from Java");
+  }
+
+  const people = await res.json();
+
+  const match = people.find(p => p.uid === uid);
+
+  if (!match) {
+    throw new Error(`UID found in Flask but missing in Java: ${uid}`);
+  }
+
+  return match.id; // INTEGER (e.g. 52)
+};
+
+
+async function addPersonToGroup(groupId, personId) {
+  const res = await fetch(
+    `${javaURI}/api/groups/${groupId}/members/${personId}`,
+    {
+      ...fetchOptions,
+      method: "POST"
+    }
+  );
+
+  console.log("ADD MEMBER STATUS:", res.status);
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("ADD MEMBER ERROR:", text);
+    throw new Error("Failed to add member");
+  }
+}
+
+window.addMemberToGroup = async function (groupId, uid) {
+  const personId = await getPersonIdFromUID(uid);
+
+  const res = await fetch(
+    `${javaURI}/api/groups/${groupId}/members/${personId}`,
+    {
+      ...fetchOptions,
+      method: "POST"
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to add member");
+  }
+
+  await loadGroups(); // refresh UI
+}
+
+window.removeMemberFromGroup = async function (groupId, personId) {
+  const res = await fetch(
+    `${javaURI}/api/groups/${groupId}/members/${personId}`,
+    {
+      ...fetchOptions,
+      method: "DELETE"
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to remove member");
+  }
+
+  await loadGroups(); // refresh UI
+}
+
+window.deleteGroup = async function (groupId) {
+  const confirmed = confirm(
+    "Are you sure you want to delete this group?\n\nThis action cannot be undone."
+  );
+
+  if (!confirmed) return;
+
+  const res = await fetch(`${javaURI}/api/groups/${groupId}`, {
+    ...fetchOptions,
+    method: "DELETE"
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("DELETE GROUP ERROR:", text);
+    alert("Failed to delete group");
+    return;
+  }
+
+  await loadGroups(); // refresh UI
+};
+
+
+
+/* ================================
+   API CALLS
+================================ */
+window.loadGroups = async function () {
+  try {
+    const res = await fetch(`${javaURI}/api/groups`, {
+      ...fetchOptions,
+      // credentials: 'omit'
+    });
+    allGroups = await res.json();
+    renderGroups();
+  } catch (err) {
+    console.error("Failed to load groups", err);
+  }
+}
+
+window.saveNewGroup = async function () {
+  const name = document.getElementById("newGroupName").value.trim();
+  const period = document.getElementById("newGroupPeriod").value;
+  const course = document.getElementById("newGroupClass").value;
+  const rawUIDs = document.getElementById("newGroupMembers").value;
+
+  if (!name || !period || !course) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  const uids = parseUIDs(rawUIDs);
+
+  try {
+    // 1️⃣ Create group (NO MEMBERS)
+    const groupRes = await fetch(`${javaURI}/api/groups`, {
+      ...fetchOptions,
+      method: "POST",
+      body: JSON.stringify({
+        name,
+        period: Number(period),
+        course
+      })
+    });
+
+    if (!groupRes.ok) throw new Error("Group creation failed");
+
+    const group = await groupRes.json();
+    const groupId = group.id;
+
+    // 2️⃣ Resolve & add each UID
+    for (const uid of uids) {
+      // Flask validation
+      const validatedUID = await validateUIDWithFlask(uid);
+
+      // Java UID → person.id
+      const personId = await getPersonIdFromUID(validatedUID);
+
+      // Add to group
+      await addPersonToGroup(groupId, personId);
+    }
+
+    cancelAddGroup();
+    await loadGroups();
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+};
+
+
+
+/* ================================
+   RENDERING
+================================ */
+window.renderGroups = function () {
+  const container = document.getElementById("groupsContainer");
+  const empty = document.getElementById("emptyState");
+  const search = document.getElementById("searchInput").value.toLowerCase();
+
+  container.innerHTML = "";
+
+  const filtered = allGroups.filter(g => {
+    if (activePeriods.length && !activePeriods.includes(String(g.period))) return false;
+    if (activeClasses.length && !activeClasses.includes(g.course)) return false;
+
+    if (search) {
+      const memberMatch = (g.memberUids || []).some(uid =>
+        uid.toLowerCase().includes(search)
+      );
+      if (
+        !g.name.toLowerCase().includes(search) &&
+        !memberMatch
+      ) return false;
+    }
+    return true;
+  });
+
+  if (!filtered.length) {
+    empty.classList.remove("hidden");
+    return;
+  }
+
+  empty.classList.add("hidden");
+
+  filtered.forEach(group => {
+    const el = document.createElement("div");
+    el.className = "bg-neutral-700 rounded-lg p-4 border border-neutral-600";
+
+    el.innerHTML = `
+      <!-- Header -->
+      <div class="flex justify-between items-start">
+        <div>
+          <h4 class="text-lg font-semibold text-white">${group.name}</h4>
+          <p class="text-sm text-gray-400">
+            Period ${group.period} · ${group.course}
+          </p>
+        </div>
+
+        <!-- Trash (future delete group) -->
+        <button
+          class="w-9 h-9 flex items-center justify-center rounded bg-neutral-600 hover:bg-red-600 text-gray-300 hover:text-white transition-colors"
+          title="Delete group"
+          onclick="deleteGroup(${group.id})">
+          🗑️
+        </button>
+      </div>
+
+      <!-- Members row -->
+      <div class="mt-3 flex flex-wrap gap-2">
+        ${(group.members || []).map(m => `
+          <span class="px-3 py-1 bg-neutral-600 text-sm text-gray-200 rounded-full">
+            ${m.name}
+          </span>
+        `).join("")}
+      </div>
+
+      <!-- Add / Remove by UID -->
+      <div class="mt-4 flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="Enter UID"
+          class="flex-1 px-3 py-2 bg-neutral-600 text-white text-sm rounded-lg border border-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          id="member-uid-${group.id}"
+        />
+
+        <!-- Add -->
+        <button
+          class="w-10 h-10 flex items-center justify-center rounded-lg bg-green-600 hover:bg-green-500 text-white text-lg font-bold"
+          title="Add member"
+          onclick="
+            (() => {
+              const uid = document.getElementById('member-uid-${group.id}').value;
+              if (uid) addMemberToGroup(${group.id}, uid.trim());
+            })()
+          ">
+          +
+        </button>
+
+        <!-- Remove -->
+        <button
+          class="w-10 h-10 flex items-center justify-center rounded-lg bg-red-600 hover:bg-red-500 text-white text-lg font-bold"
+          title="Remove member"
+          onclick="
+            (() => {
+              const uid = document.getElementById('member-uid-${group.id}').value;
+              if (!uid) return;
+              getPersonIdFromUID(uid.trim())
+                .then(pid => removeMemberFromGroup(${group.id}, pid))
+                .catch(err => alert(err.message));
+            })()
+          ">
+          −
+        </button>
+      </div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+/* ================================
+   ADD GROUP TOGGLE
+================================ */
+window.toggleAddGroup = function () {
+  document.getElementById("addGroupExpanded").classList.toggle("hidden");
+  document.getElementById("addGroupChevron").classList.toggle("rotate-180");
+}
+
+window.cancelAddGroup = function () {
+  document.getElementById("addGroupExpanded").classList.add("hidden");
+  document.getElementById("newGroupName").value = "";
+  document.getElementById("newGroupPeriod").value = "";
+  document.getElementById("newGroupClass").value = "";
+  document.getElementById("newGroupMembers").value = "";
+}
+
+/* ================================
+   FILTERS
+================================ */
+window.toggleDropdown = function (type) {
+  document.getElementById(type + "Dropdown").classList.toggle("hidden");
+}
+
+window.clearAllFilters = function () {
+  activePeriods = [];
+  activeClasses = [];
+  document.querySelectorAll(".period-checkbox,.class-checkbox").forEach(cb => cb.checked = false);
+  document.getElementById("periodAllCheckbox").checked = true;
+  document.getElementById("classAllCheckbox").checked = true;
+  document.getElementById("periodFilterLabel").textContent = "All Periods";
+  document.getElementById("classFilterLabel").textContent = "All Classes";
+  renderGroups();
+}
+
+window.onPeriodCheckboxChange = function (cb) {
+  activePeriods = [...document.querySelectorAll(".period-checkbox:checked")].map(c => c.value);
+  document.getElementById("periodAllCheckbox").checked = !activePeriods.length;
+  document.getElementById("periodFilterLabel").textContent =
+    activePeriods.length ? `Periods: ${activePeriods.join(", ")}` : "All Periods";
+  renderGroups();
+}
+
+window.onClassCheckboxChange = function (cb) {
+  activeClasses = [...document.querySelectorAll(".class-checkbox:checked")].map(c => c.value);
+  document.getElementById("classAllCheckbox").checked = !activeClasses.length;
+  document.getElementById("classFilterLabel").textContent =
+    activeClasses.length ? `Classes: ${activeClasses.join(", ")}` : "All Classes";
+  renderGroups();
+}
+
+window.onPeriodAllChange = function (cb) {
+  if (cb.checked) {
+    document.querySelectorAll(".period-checkbox").forEach(c => c.checked = false);
+    activePeriods = [];
+    renderGroups();
+  }
+}
+
+window.onClassAllChange = function (cb) {
+  if (cb.checked) {
+    document.querySelectorAll(".class-checkbox").forEach(c => c.checked = false);
+    activeClasses = [];
+    renderGroups();
+  }
+}
+</script>
