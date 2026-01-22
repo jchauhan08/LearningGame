@@ -3,7 +3,8 @@ PORT ?= 4500
 STARTUP_TIMEOUT ?= 900
 STARTUP_STATUS_AFTER ?= 60
 STARTUP_STATUS_INTERVAL ?= 30
-FAST_STARTUP_TIMEOUT ?= 7
+FAST_STARTUP_TIMEOUT ?= 10
+LIMIT_POSTS_FAST ?= 200
 JEKYLL_EXTRA_ARGS ?=
 LOG_FILE = /tmp/jekyll$(PORT).log
 WATCH_FILES_LOG = /tmp/jekyll_watch_files$(PORT).log
@@ -35,7 +36,19 @@ default: serve-fast
 	@echo "  Stop: make stop"
 
 # Fast dev server: do not run full conversions up front
-serve-fast: stop jekyll-serve-fast
+serve-fast:
+	@if lsof -ti :$(PORT) >/dev/null 2>&1; then \
+		if command -v curl >/dev/null 2>&1; then \
+			CODE="$$(curl --connect-timeout 1 --max-time 1 -s -o /dev/null -w "%{http_code}" "http://$(HOST):$(PORT)/" || true)"; \
+			if [ "$$CODE" != "000" ] && [ -n "$$CODE" ]; then \
+				echo "Server already running on http://$(HOST):$(PORT) (HTTP $$CODE)"; \
+				exit 0; \
+			fi; \
+		fi; \
+		echo "Port $(PORT) is in use but site is not responding; stopping existing server..."; \
+		$(MAKE) stop; \
+	fi; \
+	$(MAKE) jekyll-serve-fast
 
 # File watcher - monitors log for file changes and triggers conversion
 watch-files:
@@ -324,7 +337,7 @@ jekyll-serve: bundle-install
 # Fast-start Jekyll server: wait up to FAST_STARTUP_TIMEOUT seconds, then return.
 jekyll-serve-fast: bundle-install
 	@touch /tmp/.notebook_watch_marker
-	@bundle exec jekyll serve -H $(HOST) -P $(PORT) --incremental $(JEKYLL_EXTRA_ARGS) > $(LOG_FILE) 2>&1 & \
+	@bundle exec jekyll serve -H $(HOST) -P $(PORT) --incremental --skip-initial-build --limit_posts $(LIMIT_POSTS_FAST) $(JEKYLL_EXTRA_ARGS) > $(LOG_FILE) 2>&1 & \
 		echo "Server PID: $$!"
 	@make wait-for-server-fast
 
@@ -358,17 +371,8 @@ wait-for-server:
 	done
 
 wait-for-server-fast:
-	@until [ -f $(LOG_FILE) ]; do sleep 0.2; done
-	@for ((COUNTER = 0; COUNTER <= $(FAST_STARTUP_TIMEOUT); COUNTER++)); do \
-		if grep -q "Server address:" $(LOG_FILE); then \
-			echo "Server started in $$COUNTER seconds"; \
-			grep "Server address:" $(LOG_FILE); \
-			exit 0; \
-		fi; \
-		sleep 1; \
-	done
-	@echo "Still starting (>${FAST_STARTUP_TIMEOUT}s). It's continuing in the background.";
-	@echo "Check logs: tail -f $(LOG_FILE)";
+	@bash -e -c 'rm -f /tmp/.jekyll_regenerating; while [ ! -f "$(LOG_FILE)" ]; do sleep 0.2; done; if command -v curl >/dev/null 2>&1; then for ((TENTHS = 0; TENTHS <= $(FAST_STARTUP_TIMEOUT) * 10; TENTHS++)); do CODE="$$(curl --connect-timeout 1 --max-time 1 -s -o /dev/null -w "%{http_code}" "http://$(HOST):$(PORT)/" || true)"; if [ "$$CODE" != "000" ] && [ -n "$$CODE" ]; then echo "Site is responding (HTTP $$CODE)"; echo "URL: http://$(HOST):$(PORT)"; exit 0; fi; sleep 0.1; done; else for ((COUNTER = 0; COUNTER <= $(FAST_STARTUP_TIMEOUT); COUNTER++)); do if grep -q "Server address:" "$(LOG_FILE)"; then echo "Server started (see address in log)"; exit 0; fi; sleep 1; done; fi; echo "Site not responding yet (>${FAST_STARTUP_TIMEOUT}s). It is continuing in the background."; echo "Check logs: tail -f $(LOG_FILE)"; exit 0;'
+
 
 # Single DOCX file conversion (for dev mode)
 convert-docx-single:
