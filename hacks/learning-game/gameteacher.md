@@ -1,141 +1,97 @@
----
-layout: base
-title: Game Teacher Module
-authors: Anika, Rishabh, Cyrus
-permalink: /learninggame/gameteacher
----
-
 <style>
-    /* UI DESIGN BY ANIKA - Positioned to the entire screen */
+    /* MISSION OVERLAY - START OF STOP */
     #teacher-overlay {
         display: none; 
-        position: fixed; /* Fixed to viewport */
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(10, 14, 39, 0.95);
-        z-index: 2000;
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(10px);
+        position: fixed; 
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(2, 6, 23, 0.98);
+        z-index: 9998; /* High, but under the robot icon */
+        justify-content: center; align-items: center;
+        backdrop-filter: blur(15px);
     }
 
     .teacher-card {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        border: 2px solid #3b82f6;
-        border-radius: 15px;
-        padding: 30px;
-        max-width: 500px;
-        text-align: center;
-        box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
+        border: 2px solid #06b6d4;
+        border-radius: 24px; padding: 40px; max-width: 550px; 
+        text-align: center; box-shadow: 0 0 50px rgba(6, 182, 212, 0.3);
     }
 
-    /* Fixed to bottom right of the entire browser window */
+    /* THE PERSISTENT ROBOT - Fixed to stay on top of EVERYTHING */
     #help-bot-icon {
         position: fixed; 
-        bottom: 30px;
-        right: 30px;
-        width: 65px;
-        height: 65px;
-        background: #3b82f6;
+        bottom: 30px; right: 30px;
+        width: 70px; height: 70px;
+        background: #06b6d4;
         border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        display: flex; justify-content: center; align-items: center;
         cursor: pointer;
-        z-index: 3000;
-        box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
-        transition: 0.3s;
-        font-size: 30px;
+        z-index: 10001; /* Highest layer in the whole game */
+        box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
+        font-size: 35px;
+        transition: transform 0.3s;
     }
 
-    #help-bot-icon:hover { transform: scale(1.1) rotate(10deg); }
+    #help-bot-icon:hover { transform: scale(1.1); }
 
     #help-bubble {
         display: none;
         position: fixed;
-        bottom: 110px;
-        right: 30px;
-        background: white;
-        color: #0f172a;
-        padding: 15px;
-        border-radius: 12px;
+        bottom: 110px; right: 30px;
+        background: white; color: #020617;
+        padding: 15px; border-radius: 12px;
         max-width: 250px;
-        z-index: 3000;
-        border: 2px solid #3b82f6;
+        z-index: 10001; 
+        border: 3px solid #06b6d4;
         box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         font-family: sans-serif;
-        line-height: 1.4;
     }
 </style>
 
-<!-- Teacher Overlay -->
+<!-- Teacher Overlay UI -->
 <div id="teacher-overlay">
     <div class="teacher-card">
-        <h2 id="teacher-title" style="color: #60a5fa; margin-bottom: 15px; font-family: 'Segoe UI', sans-serif;"></h2>
-        <p id="teacher-msg" style="color: white; line-height: 1.6; margin-bottom: 20px; font-family: 'Segoe UI', sans-serif;"></p>
-        <button onclick="dismissTeacher()" style="padding: 12px 25px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-transform: uppercase;">Start Training</button>
+        <div style="font-size: 50px; margin-bottom: 10px;">🤖</div>
+        <h2 id="teacher-title" style="color: #06b6d4; margin-bottom: 15px; font-family: sans-serif;"></h2>
+        <p id="teacher-msg" style="color: #e2e8f0; line-height: 1.6; margin-bottom: 25px; font-family: sans-serif;"></p>
+        <button onclick="dismissTeacher()" style="padding: 12px 30px; background: #06b6d4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">BEGIN TRAINING</button>
     </div>
 </div>
 
-<!-- Persistent Global Icon -->
+<!-- Persistent Global Robot Icon -->
 <div id="help-bubble"></div>
 <div id="help-bot-icon" onclick="toggleHint()">🤖</div>
 
 <script>
-    // CONTENT BY RISHABH | LOGIC BY ANIKA
     const teacherData = {
-        1: {
-            title: "Stop 1: Training",
-            msg: "Stop 1 briefing: Robot Code Basics. Objective: learn how to give step-by-step commands to move through the maze (MOVE_FORWARD, ROTATE_LEFT/RIGHT) and use CAN_MOVE(direction) to avoid walls. Run your solution, observe what happens, and iterate until the robot reaches the goal.",
-            // Each question at this stop has a unique hint
-            hints: [
-                "Hint for Question 1: Think about basic directional commands!",
-                "Hint for Question 2: Moving the robot requires precise steps.",
-                "Hint for Question 3: Final check! Review your robot's path."
-            ]
-        },
-        2: {
-            title: "Stop 2: Training",
-            msg: "Stop 2 briefing: Pseudocode (AP CSP style). Objective: write clear, College Board–level pseudocode that makes the algorithm work as intended using variables, conditionals, and logical flow. Test your logic in the code runner—small changes in order and conditions can change the outcome.",
-            hints: [
-                "Hint for Question 1: Pseudo code doesn't need semicolons!",
-                "Hint for Question 2: What command draws a circle?",
-                "Hint for Question 3: Review the parameters inside the brackets."
-            ]
-        }
-        // Cyrus: Add Stops 3, 4, 5 following this same structure
+        1: { title: "Stop 1: Navigation", msg: "Welcome Cadet! Use Robot Code to reach the flowers. Q3 is a logic check on patterns.", hints: ["robot.moveRight() or robot.moveDown()", "Count the steps carefully!", "Q3: 4 sides and 4 turns = Square."] },
+        2: { title: "Stop 2: Logic Core", msg: "Master the IF/ELSE logic. Your robot needs a brain to make decisions.", hints: ["Sequence is everything!", "Check your logic flow.", "Q3: If the IF is false, do the ELSE!"] },
+        3: { title: "Stop 3: Simulation", msg: "Loops make your code shorter. Work smarter, not harder.", hints: ["Pattern = Loop!", "Check the sum.", "Q3: 1+2+3+4 = 10."] },
+        4: { title: "Stop 4: Alpha Deck", msg: "Abstraction hides complexity. Use functions to organize your code.", hints: ["Avoid the walls!", "Functions are reusable.", "Q3: Functions make code cleaner."] },
+        5: { title: "Stop 5: Beta Deck", msg: "Hacker Level: Efficiency. Compare Binary vs Linear search speed.", hints: ["Expert navigation required!", "Merge sort logic!", "Q3: Binary Search is way faster."] }
     };
 
     let currentStopId = 1;
-    let currentQuestionIdx = 0;
 
     function initTeacher(stopId, qIdx = 0) {
         currentStopId = stopId;
-        currentQuestionIdx = qIdx;
-        const data = teacherData[stopId] || {title: `Stop ${stopId}`, msg: "Ready for the next challenge?", hints: ["Keep going!", "You got this!", "Almost done!"]};
-        
-        // Update Overlay
+        const data = teacherData[stopId];
         document.getElementById('teacher-title').innerText = data.title;
         document.getElementById('teacher-msg').innerText = data.msg;
-        
-        // Update Hint Bubble for the current question
-        document.getElementById('help-bubble').innerText = data.hints[qIdx] || "Look closely at the code!";
-        
+        document.getElementById('help-bubble').innerText = data.hints[qIdx];
         document.getElementById('teacher-overlay').style.display = 'flex';
     }
 
     function updateHint(qIdx) {
-        currentQuestionIdx = qIdx;
         const data = teacherData[currentStopId];
-        if (data && data.hints) {
-            document.getElementById('help-bubble').innerText = data.hints[qIdx] || "Keep trying!";
-        }
+        if (data) document.getElementById('help-bubble').innerText = data.hints[qIdx];
     }
 
     function dismissTeacher() {
         document.getElementById('teacher-overlay').style.display = 'none';
+        document.getElementById('questionModal').classList.add('active');
+        // This function lives in homescreen.md
+        if (typeof showQuestion === "function") showQuestion(); 
     }
 
     function toggleHint() {
