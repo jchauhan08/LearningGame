@@ -113,16 +113,6 @@ permalink: /learninggame/home
                 { type: "Pseudocode", text: "Logic for a Binary Search.", mode: "pseudo" },
                 { type: "Computational Thinking", text: "A loop runs 4 times, adding the loop index (1+2+3+4). Total?", mode: "mc", options: ["4", "10", "15"], correct: 1 }
             ]
-                4: [
-                { type: "Robot Code", text: "Sector 4 Robot task (placeholder).", mode: "robot" },
-                { type: "Pseudocode", text: "Sector 4 Pseudocode task (placeholder).", mode: "pseudo" },
-                { type: "Computational Thinking", text: "Sector 4 Q3 (keep MCQ format).", mode: "mc", options: ["A", "B", "C"], correct: 0 }
-            ],
-            5: [
-                { type: "Robot Code", text: "Sector 5 Robot task (placeholder).", mode: "robot" },
-                { type: "Pseudocode", text: "Sector 5 Pseudocode task (placeholder).", mode: "pseudo" },
-                { type: "Computational Thinking", text: "Sector 5 Q3 (keep MCQ format).", mode: "mc", options: ["A", "B", "C"], correct: 0 }
-            ]
         };
 
         const mazeLayout = [
@@ -193,7 +183,7 @@ permalink: /learninggame/home
             document.getElementById('questionTypeText').innerText = currentQ.type;
             document.getElementById('questionText').innerText = currentQ.text;
             document.getElementById('robotOutput').textContent = '';
-            document.getElementById('pseudoOutput').textContent = '';
+        document.getElementById('pseudoOutput').textContent = '';
 
             
             if (typeof updateHint === "function") updateHint(currentQuestion);
@@ -201,34 +191,6 @@ permalink: /learninggame/home
             if (currentQ.mode === 'robot') {
                 document.getElementById('codeRunner').style.display = 'block';
                 document.getElementById('nextBtn').style.display = 'block';
-
-                // Starter code for Q1 in each sector (does not affect Q3)
-                const codeBox = document.getElementById('codeInput');
-                if (!codeBox.value.trim()) {
-                    codeBox.value = `// Use the robot API:
-            // robot.moveRight();
-            // robot.moveDown();
-            // console.log(robot.getPosition());
-
-            robot.moveRight();
-            robot.moveDown();
-            console.log(robot.getPosition());`;
-                }
-
-            } else if (currentQ.mode === 'pseudo') {
-                document.getElementById('pseudoRunner').style.display = 'block';
-                document.getElementById('nextBtn').style.display = 'block';
-
-                // Starter pseudocode for Q2 in each sector (does not affect Q3)
-                const pseudoBox = document.getElementById('pseudoInput');
-                if (!pseudoBox.value.trim()) {
-                    pseudoBox.value = `1. Start
-            2. Do something
-            3. End`;
-                }
-
-            } else if (currentQ.mode === 'mc') {
-                ...
             } else if (currentQ.mode === 'pseudo') {
                 document.getElementById('pseudoRunner').style.display = 'block';
                 document.getElementById('nextBtn').style.display = 'block';
@@ -265,98 +227,29 @@ permalink: /learninggame/home
         });
 
         // --- CODE RUNNER LOGIC (Robot + Pseudocode) ---
-        // What this fixes:
-        // 1) Captures console.log output into the output box
-        // 2) Gives a working fake "robot" API so robot.moveRight() etc. won't fail
-        // 3) Shows useful errors instead of "nothing happened"
-
         const runRobotBtn = document.getElementById('runRobotBtn');
         const runPseudoBtn = document.getElementById('runPseudoBtn');
-
-        function runWithConsoleCapture(userCode, outputEl, sandbox = {}) {
-            outputEl.textContent = "";
-
-            // Capture console.log
-            const originalLog = console.log;
-            const logs = [];
-            console.log = (...args) => logs.push(args.map(a => (typeof a === "object" ? JSON.stringify(a) : String(a))).join(" "));
-
-            try {
-                // Provide sandbox variables via Function parameters
-                const sandboxKeys = Object.keys(sandbox);
-                const sandboxVals = Object.values(sandbox);
-
-                // Run code in a function so "return" works if they use it
-                const fn = new Function(...sandboxKeys, userCode);
-                const result = fn(...sandboxVals);
-
-                const logText = logs.length ? logs.join("\n") : "";
-                const resultText = result !== undefined ? String(result) : "";
-
-                if (logText && resultText) outputEl.textContent = logText + "\n" + resultText;
-                else if (logText) outputEl.textContent = logText;
-                else if (resultText) outputEl.textContent = resultText;
-                else outputEl.textContent = "Ran successfully. (Tip: use console.log(...) to print output.)";
-            } catch (err) {
-                outputEl.textContent = "Error: " + err.message;
-            } finally {
-                console.log = originalLog;
-            }
-        }
-
-        // Simple fake robot so student code like robot.moveRight() works
-        function makeRobot(outputEl) {
-            const state = { x: 0, y: 0, steps: [] };
-
-            function record(action) {
-                state.steps.push(action);
-                outputEl.textContent = `Robot position: (${state.x}, ${state.y})\n` +
-                                    `Moves: ${state.steps.join(", ")}`;
-            }
-
-            return {
-                moveRight() { state.x += 1; record("Right"); },
-                moveLeft() { state.x -= 1; record("Left"); },
-                moveUp() { state.y -= 1; record("Up"); },
-                moveDown() { state.y += 1; record("Down"); },
-                say(msg) { record(`Say("${msg}")`); },
-                getPosition() { return { x: state.x, y: state.y }; }
-            };
-        }
 
         runRobotBtn.onclick = () => {
             const code = document.getElementById('codeInput').value;
             const out = document.getElementById('robotOutput');
 
-            // Provide a working robot API to the code
-            const robot = makeRobot(out);
-
-            // Give them a starter hint if empty
-            if (!code.trim()) {
-                out.textContent = `Type robot moves like:\nrobot.moveRight();\nrobot.moveDown();\nconsole.log(robot.getPosition());`;
-                return;
+            try {
+                // Very simple JS runner (placeholder)
+                const result = eval(code);
+                out.textContent = result !== undefined ? String(result) : "Robot code ran.";
+            } catch (err) {
+                out.textContent = "Error: " + err.message;
             }
-
-            runWithConsoleCapture(code, out, { robot });
         };
 
         runPseudoBtn.onclick = () => {
             const pseudo = document.getElementById('pseudoInput').value;
             const out = document.getElementById('pseudoOutput');
 
-            if (!pseudo.trim()) {
-                out.textContent = "Type pseudocode, then click Run Pseudocode.";
-                return;
-            }
-
-            // For pseudocode, we don't "execute" it, but we DO produce a consistent output
-            // so students feel like something happened.
-            out.textContent =
-                "Pseudocode received:\n" +
-                pseudo +
-                "\n\nTip: Use clear steps like:\n1. Initialize...\n2. Loop...\n3. Return...";
+            // Placeholder runner: just echoes what they typed
+            out.textContent = "Pseudocode submitted:\n" + pseudo;
         };
-
 
         createMaze();
     </script>
