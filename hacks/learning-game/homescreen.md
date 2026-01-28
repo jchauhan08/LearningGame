@@ -154,7 +154,8 @@ permalink: /learninggame/home
     {{ parts | slice: 2, parts.size | join: '---' }}
 
 <script type="module">
-    import { getRobopURI, fetchOptions } from '{{ site.baseurl }}/assets/js/api/config.js?v=20260123_1';
+    //import { getRobopURI, fetchOptions } from '{{ site.baseurl }}/assets/js/api/config.js?v=20260123_1';
+    import { getRobopURI, fetchOptions } from '{{ "/assets/js/api/config.js" | relative_url }}?v=20260123_1';
 
     const robopURI = await getRobopURI();
     const API_URL = `${robopURI}/api/robop`;
